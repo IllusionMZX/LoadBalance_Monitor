@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云服务器网络监控及负载均衡模拟</title>
+    <style>
+        /* 炫彩淡蓝紫色渐变背景 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(150deg, #b7f8f7, #b4f3f8, #f3b4f8); /* 渐变色 */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* 半透明背景 */
+            padding: 40px;
+            border-radius: 20px; /* 圆角 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+            width: 90vw; /* 宽度为视口宽度的90% */
+            max-width: 960px; /* 最大宽度 */
+            text-align: center; /* 文本居中 */
+            position: relative; /* 使前景可以相对定位 */
+            z-index: 2; /* 前景层在顶部 */
+        }
+        h1 {
+            font-size: 2.5em; /* 标题字体大小 */
+            color: #333; /* 标题颜色 */
+            margin-bottom: 0.5em; /* 标题与下文的间距 */
+        }
+        .theme-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 3; /* 确保主题切换按钮在最上面 */
+        }
+        button {
+            padding: 15px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s; /* 添加变换效果 */
+            margin: 5px;
+        }
+        .light-mode button {
+            background-color: #333;
+            color: #fff;
+        }
+        .dark-mode button {
+            background-color: #fff;
+            color: #333;
+        }
+        button:hover {
+            transform: scale(1.1); /* 悬停时放大 */
+        }
+
+        /* 加载旋转圆圈 */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #333;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>云服务器网络监控及负载均衡模拟</h1>
+        <button class="theme-switch" onclick="toggleTheme()">切换主题</button>
+        <button class="light-mode" onclick="goToLink(1)">运维监控</button>
+        <button class="light-mode" onclick="goToLink(2)">负载均衡</button>
+        <button class="light-mode" onclick="openChat()">聊天界面</button> <!-- 新增按钮 -->
+    </div>
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            document.body.classList.toggle('light-mode');
+        }
+
+        function goToLink(buttonNumber) {
+            if (buttonNumber === 1) {
+                window.location.href = 'http://39.105.101.100:3000/d/9CWBzd1f0bik001/linuxe4b8bb-e69cba-e8afa6-e68385?orgId=1&from=1727858580002&to=1727944980002';
+            } else if (buttonNumber === 2) {
+                window.location.href = 'http://39.105.101.100:3000/d/fe0kdpmiydgqoa/haproxy-servers-7c-haproxy?orgId=1&refresh=1m&from=1728653432803&to=1728664232804';
+            }
+        }
+
+        function openChat() {
+            // 清空body内容并添加聊天界面
+            document.body.innerHTML = `
+                <div style="height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; position: relative;">
+                    <div style="height: 80%; width: 80%; background: rgba(246, 246, 246, 0.9); border-radius: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); position: relative; z-index: 2;">
+                        <button style="position: absolute; top: 20px; left: 20px; background-color: #333; color: #fff; padding: 10px; border-radius: 5px; cursor: pointer;" onclick="goBack()">返回</button>
+                        <button style="position: absolute; top: 20px; right: 20px; background-color: #ff0000; color: #fff; padding: 10px; border-radius: 5px; cursor: pointer;" onclick="clearChatHistory()">清空聊天记录</button>
+                        <h1 style="text-align: center; margin-bottom: 20px;">有什么可以帮忙的？</h1>
+                        
+                        <div id="chat-history" style="margin: 20px; max-height: 60%; overflow-y: auto; padding: 10px; border: 1px solid #ccc; border-radius: 10px; background-color: #fff;">
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; background-color: #fff; border-radius: 20px; padding: 10px; width: 80%; margin: 0 auto;">
+                            <input id="user-input" type="text" placeholder="给Kimi AI发送消息" style="border: none; outline: none; font-size: 16px; flex-grow: 1;">
+                            <button id="send-button" style="background-color:#333; color: #fff; border: none; border-radius: 5px; padding: 10px; cursor: pointer;">发送</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const input = document.getElementById("user-input");
+            const sendButton = document.getElementById("send-button");
+            const chatHistory = document.getElementById("chat-history");
+
+            sendButton.addEventListener("click", async () => {
+                const userMessage = input.value.trim();
+                if (userMessage) {
+                    // 显示用户消息
+                    const userMessageElement = document.createElement('p');
+                    userMessageElement.innerHTML = `<strong>你:</strong> ${userMessage}`;
+                    chatHistory.appendChild(userMessageElement);
+
+                    input.value = ""; // 清空输入框
+
+                    // 显示加载动画
+                    const loadingElement = document.createElement('div');
+                    loadingElement.classList.add('spinner');
+                    chatHistory.appendChild(loadingElement);
+                    chatHistory.scrollTop = chatHistory.scrollHeight; // 滚动到底部
+
+                    try {
+                        // 发送用户消息到后端
+                        const response = await fetch("http://localhost:3000/chat", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ message: userMessage }) // 发送用户消息
+                        });
+
+                        const data = await response.json();
+
+                        // 移除加载动画
+                        chatHistory.removeChild(loadingElement);
+
+                        // 显示逐字输出效果
+                        typeMessage(data.reply);
+
+                    } catch (error) {
+                        console.error("Error:", error);
+                    }
+                }
+            });
+        }
+
+        function clearChatHistory() {
+            document.getElementById("chat-history").innerHTML = ''; // 清空聊天记录
+        }
+
+        function typeMessage(message) {
+            const chatHistory = document.getElementById("chat-history");
+            const msg = document.createElement('p');
+            msg.innerHTML = `<strong>Kimi:</strong> `; // 逐字输出之前的固定文本
+
+            chatHistory.appendChild(msg);
+
+            let i = 0;
+            const intervalId = setInterval(() => {
+                if (i < message.length) {
+                    msg.innerHTML += message[i];
+                    i++;
+                    chatHistory.scrollTop = chatHistory.scrollHeight; // 滚动到底部
+                } else {
+                    clearInterval(intervalId); // 完成逐字输出后停止
+                }
+            }, 50); // 控制逐字输出的速度，50ms一字
+        }
+
+        function goBack() {
+            location.reload(); // 刷新页面以返回主界面
+        }
+    </script>
+</body>
+</html>
